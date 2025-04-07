@@ -14,96 +14,72 @@ struct ActivitiesView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                ActivitiesTypeView(store: store)
-                
-//                if let date = store.currentActivity?.startDate {
-//                    Text(
-//                        timerInterval: date...Date.distantFuture,
-//                        countsDown: false,
-//                        showsHours: true
-//                    )
-//                }
-                
-                ScrollView(.horizontal) {
-                    ActivitiesPageView(
-                        activities: store.currentActivityDay?.activities ?? [],
-                        onSelectActivity: { activity in
-                            store.send(.activityDetails(activity))
-                        },
-                        onStopActivityTimer: { id in
-                            store.send(.stopActivityTimer(id))
+                if store.isCurrentDateToday {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        ForEach(store.activityTypes) { activityType in
+                            VStack {
+                                activityType.image
+                                Text(activityType.title)
+                            }
                         }
-                    )
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .scrollTargetLayout()
-                    .onAppear {
-                        store.send(.onAppear)
+                        .frame(width: 65, height: 65)
+                        .background(Color.gray.opacity(0.3))
+                        .clipShape(Circle())
+                        .onTapGesture {
+                            store.send(.startActivityTimer)
+                        }
                     }
-                    .background(Color.red)
                 }
-                .scrollTargetBehavior(.paging)
-                .background(Color.yellow)
+                                
+                DatePicker(
+                    "Date",
+                    selection: $store.currentDate,
+                    displayedComponents: [.date]
+                )
                 
-//                ScrollView(.horizontal) {
-//                    if store.activities.isEmpty {
-//                        VStack {
-//                            Spacer()
-//                            Text("No activities today")
-//                            Spacer()
-//                        }
-//                    } else {
-//                        ScrollView(.vertical) {
-//                            LazyVStack(spacing: 0) {
-//                                ForEach(store.activities) { activity in
-//                                    Button {
-//                                        store.send(.activityDetails(activity))
-//                                    } label: {
-//                                        VStack(alignment: .leading) {
-//                                            HStack {
-//                                                activity.activityType.image
-//                                                VStack(alignment: .leading) {
-//                                                    Text(activity.activityType.title)
-//                                                    Text(activity.activityType.intervalText)
-//                                                }
-//                                            }
-//                                            if activity.endDate == nil {
-//                                                Button("Stop") {
-//                                                    store.send(.stopActivityTimer(activity.id))
-//                                                }
-//                                                .padding()
-//                                                .background(Color(red: 0, green: 0, blue: 0.5))
-//                                                .clipShape(Capsule())
-//                                            }
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    List(store.activities) { activity in
-//                        Button {
-//                            store.send(.activityDetails(activity))
-//                        } label: {
-//                            VStack(alignment: .leading) {
-//                                HStack {
-//                                    activity.activityType.image
-//                                    VStack(alignment: .leading) {
-//                                        Text(activity.activityType.title)
-//                                        Text(activity.intervalText)
-//                                    }
-//                                }
-//                                if activity.endDate == nil {
-//                                    Button("Stop") {
-//                                        store.send(.stopActivityTimer(activity.id))
-//                                    }
-//                                    .padding()
-//                                    .background(Color(red: 0, green: 0, blue: 0.5))
-//                                    .clipShape(Capsule())
-//                                }
-//                            }
-//                        }
-//                    }
-//                    }
-//                }
+                if store.isActivityTimerRunning {
+                    Text(
+                        Duration
+                            .seconds(store.currentActivityDuration)
+                            .formatted()
+                    )
+                    .font(.title3)
+                }
+
+                if store.currentActivities.isEmpty {
+                    VStack {
+                        Spacer()
+                        Text("No activities")
+                        Spacer()
+                    }
+                } else {
+                    List(store.currentActivities) { activity in
+                        Button {
+                            store.send(.activityDetails(activity))
+                        } label: {
+                            VStack(alignment: .leading) {
+                                HStack {
+                                    activity.activityType.image
+                                    VStack(alignment: .leading) {
+                                        Text(activity.activityType.title)
+                                        Text(activity.intervalText)
+                                    }
+                                }
+                                if activity.endDate == nil {
+                                    Button("Stop") {
+                                        store.send(.stopActivityTimer(activity.id))
+                                    }
+                                    .padding()
+                                    .background(Color(red: 0, green: 0, blue: 0.5))
+                                    .clipShape(Capsule())
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .onAppear {
+                store.send(.onAppear)
             }
             .padding()
             .navigationTitle("Melisa Daybook")

@@ -62,14 +62,14 @@ public enum Route {
     
     var path: String {
         switch self {
-        case .allActivities:
-            "/activities/all"
         case .activities:
             "/activities"
         case .activity(let id):
             "/activities/\(id.uuidString)"
         case .finishActivity(let id):
             "/activities/\(id.uuidString)/finish"
+        case .allActivities:
+            "/activities/all/"
         }
     }
 }

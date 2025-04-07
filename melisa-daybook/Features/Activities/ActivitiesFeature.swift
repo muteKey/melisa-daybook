@@ -13,13 +13,23 @@ struct ActivitiesFeature {
     @ObservableState
     struct State {
         var activityTypes: IdentifiedArrayOf<ActivityType> = IdentifiedArray(uniqueElements: ActivityType.allCases)
-        var 
+        
         var isLoading = false
         var isActivityTimerRunning: Bool = false
-        var currentActivityDuration = 0
-        var currentActivityDay: BabyActivityDay!
+        var currentActivityDuration: TimeInterval = 0
         var currentDate: Date = .now
         @Presents var destination: Destination.State?
+        
+        var hasLoadedAllData = false
+        var allActivities: IdentifiedArrayOf<BabyActivity> = []
+        var currentActivities: IdentifiedArrayOf<BabyActivity> = []
+        
+        @ObservationStateIgnored
+        @Dependency(\.calendar) private var calendar
+                
+        var isCurrentDateToday: Bool {
+            calendar.isDateInToday(currentDate)
+        }
     }
     
     @Reducer
@@ -27,9 +37,9 @@ struct ActivitiesFeature {
         case activityDetails(ActivityDetailsFeature)
     }
     
-    enum Action {
+    enum Action: BindableAction {
         case onAppear
-        case activitiesResponse([BabyActivityDay])
+        case activitiesResponse([BabyActivity])
         case startActivityTimer
         case stopActivityTimer(UUID)
         case timerTick
@@ -39,6 +49,7 @@ struct ActivitiesFeature {
         case stopLiveActivity
         case activityDetails(BabyActivity)
         case destination(PresentationAction<Destination.Action>)
+        case binding(BindingAction<State>)
     }
     
     private enum CancelID {
@@ -52,11 +63,15 @@ struct ActivitiesFeature {
     @Dependency(\.date.now) private var now
     
     var body: some ReducerOf<Self> {
+        BindingReducer()
+        
         Reduce { state, action in
             switch action {
             case .onAppear:
+                guard !state.hasLoadedAllData else { return .none }
+                
                 state.isLoading = true
-                state.days = IdentifiedArray(uniqueElements: generateDays())
+                state.hasLoadedAllData = true
                 return .run { send in
                     let response = try await networkClient.getAllActivities()
                     await send(.activitiesResponse(response))
@@ -65,8 +80,10 @@ struct ActivitiesFeature {
                 }
                 
             case let .activitiesResponse(response):
-                let days = merge(local: state.days.elements, external: response)
-                state.days = IdentifiedArray(uniqueElements: days)
+                state.allActivities = IdentifiedArray(uniqueElements: response)
+                state.currentActivities = state.allActivities.filter {
+                    calendar.isDate($0.startDate, inSameDayAs: state.currentDate)
+                }
                 state.isLoading = false
                 return .none
                 
@@ -110,16 +127,23 @@ struct ActivitiesFeature {
                 return .none
                 
             case .createActivityResponse(let activity):
-//                state.activities.insert(activity, at: 0)
+                state.allActivities.insert(activity, at: 0)
+                state.currentActivities = state.allActivities.filter {
+                    calendar.isDate($0.startDate, inSameDayAs: state.currentDate)
+                }
                 state.isLoading = false
                 return .none
                 
             case .finishActivityResponse(let activity):
                 state.isLoading = false
-//                guard let index = state.activities.firstIndex(where: { $0.id == activity.id }) else {
-//                    return .none
-//                }
-//                state.activities[index] = activity
+                guard let index = state.allActivities.firstIndex(where: { $0.id == activity.id }) else {
+                    return .none
+                }
+                state.allActivities[index] = activity
+                state.currentActivities = state.allActivities.filter {
+                    calendar.isDate($0.startDate, inSameDayAs: state.currentDate)
+                }
+
                 return .none
                 
             case .startLiveActivity:
@@ -138,45 +162,19 @@ struct ActivitiesFeature {
                     .init(activity: activity)
                 )
                 return .none
+            case .binding(\.currentDate):
+                state.isLoading = true
+                return .run { [date = state.currentDate] send in
+                    let response = try await networkClient.getActivitiesForDate(date)
+                    await send(.activitiesResponse(response))
+                } catch: { error, send in
+                    await send(.activitiesResponse([]))
+                }
+
+            case .binding:
+                return .none
             }
         }
         .ifLet(\.$destination, action: \.destination)
-    }
-    
-    private func generateDays() -> [BabyActivityDay] {
-        let currentYear = calendar.component(.year, from: now)
-        let daysInYear = calendar.daysInYear(currentYear)
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        
-        guard let startDate = calendar.date(from: DateComponents(year: currentYear, month: 1, day: 1)) else {
-            return []
-        }
-
-        let results: [BabyActivityDay] = (0..<daysInYear).compactMap {
-            guard let date = calendar.date(byAdding: .day, value: $0, to: startDate) else {
-                return nil
-            }
-            return .init(date: date, activities: [])
-        }
-        return results
-    }
-    
-    private func merge(local: [BabyActivityDay], external: [BabyActivityDay]) -> [BabyActivityDay] {
-        var merged: [BabyActivityDay] = []
-        for day in local {
-            if let index = external.firstIndex(where: { calendar.startOfDay(for: $0.date) == calendar.startOfDay(for: day.date) }) {
-                let mergedDay = external[index]
-                merged.append(.init(date: mergedDay.date, activities: mergedDay.activities))
-            } else {
-                merged.append(day)
-            }
-        }
-        return merged
-    }
-    
-    private func currentDayIndex() -> Int {
-        let currentDate = calendar.startOfDay(for: Date())
-        let index = state.days.firstIndex(where: { calendar.startOfDay(for: $0.date) == currentDate})
     }
 }

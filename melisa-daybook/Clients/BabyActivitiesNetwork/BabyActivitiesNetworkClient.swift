@@ -14,7 +14,8 @@ struct ActivityInput: Encodable {
 }
 
 struct BabyActivitiesNetworkClient {
-    var getAllActivities: () async throws -> [Date: [BabyActivity]]
+    var getAllActivities: () async throws -> [BabyActivity]
+    var getActivitiesForDate: (Date) async throws -> [BabyActivity]
     var createActivity: () async throws -> BabyActivity
     var finishActivity: (UUID) async throws -> BabyActivity
     var updateActivity: (UUID, ActivityInput) async throws -> BabyActivity
@@ -25,8 +26,14 @@ extension BabyActivitiesNetworkClient: DependencyKey {
     static var liveValue: BabyActivitiesNetworkClient {
         .init(
             getAllActivities: {
+                try await ApiManager.shared.dataRequest(route: .allActivities)
+            },
+            getActivitiesForDate: { date in
                 try await ApiManager.shared.dataRequest(
-                    route: .allActivities
+                    route: .activities,
+                    queryItems: [
+                        .date(DateFormatter.yearMonthDay.string(from: date))
+                    ]
                 )
             },
             createActivity: {
@@ -63,15 +70,16 @@ extension BabyActivitiesNetworkClient: DependencyKey {
     static var previewValue: BabyActivitiesNetworkClient {
         .init(
             getAllActivities: {
-                [:
-//                    Date(): [
-//                        BabyActivity(
-//                            date: .now,
-//                            activities: [
-//                                .init(id: .init(), type: .sleep, startDate: .now)
-//                            ]
-//                        )
-//                    ]
+                []
+            },
+            getActivitiesForDate: { _ in
+                [
+                    .init(
+                        id: .init(),
+                        type: .sleep,
+                        startDate: .now,
+                        endDate: nil
+                    )
                 ]
             },
             createActivity: {

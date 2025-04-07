@@ -20,3 +20,11 @@ extension Calendar {
         return 365 // Default in case of an error
     }
 }
+
+extension Date {
+    var endOfDay: Date {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: self)
+        return calendar.date(byAdding: DateComponents(day: 1, second: -1), to: startOfDay) ?? .now
+    }
+}
