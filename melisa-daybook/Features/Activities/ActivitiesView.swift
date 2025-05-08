@@ -6,56 +6,57 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
+import SwiftUINavigation
+import Dependencies
+import GRDB
 
 struct ActivitiesView: View {
-    @Bindable var store: StoreOf<ActivitiesFeature>
+    @Bindable var model: ActivitiesModel
     
     var body: some View {
         NavigationStack {
             VStack {
-                if store.isCurrentDateToday {
+                if model.isCurrentDateToday {
                     ScrollView(.horizontal, showsIndicators: false) {
-                        ForEach(store.activityTypes) { activityType in
+                        ForEach(model.activityTypes) { activityType in
                             VStack {
                                 activityType.image
                                 Text(activityType.title)
                             }
-                        }
-                        .frame(width: 65, height: 65)
-                        .background(Color.gray.opacity(0.3))
-                        .clipShape(Circle())
-                        .onTapGesture {
-                            store.send(.startActivityTimer)
+                            .frame(width: 65, height: 65)
+                            .background(Color.gray.opacity(0.3))
+                            .clipShape(Circle())
+                            .onTapGesture {
+                                model.startActivityTimer()
+                            }
                         }
                     }
                 }
                                 
                 DatePicker(
-                    "Date",
-                    selection: $store.currentDate,
+                    model.isCurrentDateToday ? "today" : "current_date",
+                    selection: $model.currentDate,
                     displayedComponents: [.date]
                 )
                 
-                if store.isActivityTimerRunning {
+                if let startDate = model.activityTimerStartDate {
                     Text(
-                        Duration
-                            .seconds(store.currentActivityDuration)
-                            .formatted()
+                        timerInterval: startDate...Date.distantFuture,
+                        countsDown: false
                     )
                     .font(.title3)
                 }
 
-                if store.currentActivities.isEmpty {
+                if model.state.currentActivities.isEmpty {
                     VStack {
                         Spacer()
-                        Text("No activities")
+                        Text("no_activities")
                         Spacer()
                     }
                 } else {
-                    List(store.currentActivities) { activity in
+                    List(model.state.currentActivities) { activity in
                         Button {
-                            store.send(.activityDetails(activity))
+                            model.select(activity: activity)
                         } label: {
                             VStack(alignment: .leading) {
                                 HStack {
@@ -66,8 +67,8 @@ struct ActivitiesView: View {
                                     }
                                 }
                                 if activity.endDate == nil {
-                                    Button("Stop") {
-                                        store.send(.stopActivityTimer(activity.id))
+                                    Button("stop") {
+                                        model.stopActivityTimer(activity: activity)
                                     }
                                     .padding()
                                     .background(Color(red: 0, green: 0, blue: 0.5))
@@ -79,34 +80,57 @@ struct ActivitiesView: View {
                 }
             }
             .onAppear {
-                store.send(.onAppear)
+                model.viewAppeared()
             }
             .padding()
-            .navigationTitle("Melisa Daybook")
-            .sheet(
-                item: $store.scope(
-                    state: \.destination?.activityDetails,
-                    action: \.destination.activityDetails
-                )
-            ) { store in
+            .sheet(item: $model.destination.activityDetails, id: \.hashValue) { model in
                 NavigationStack {
-                    ActivityDetailsView(store: store)
-                        .navigationTitle("Details")
+                    ActivityDetailsView(model: model)
+                        .navigationTitle("details")
                         .navigationBarTitleDisplayMode(.inline)
-                        
+                    
                 }
             }
+            .navigationTitle("melissa_daybook")
         }
     }
 }
 
-#Preview {
-    ActivitiesView(
-        store: Store(initialState: ActivitiesFeature.State()) {
-            ActivitiesFeature()
-            ._printChanges()
+extension DatabaseWriter where Self == DatabaseQueue {
+    static var activityDatabase: Self {
+        let databaseQueue = try! DatabaseQueue()
+        var migrator = DatabaseMigrator()
+        migrator.registerMigration("Create Baby Activities Table") { db in
+            try db.create(table: "baby_activities", options: [.strict]) { t in
+                t.autoIncrementedPrimaryKey("id")
+                t.column("activityType", .text).notNull()
+                t.column("startDate", .text).notNull()
+                t.column("endDate", .text)
+            }
         }
-    )
+        try! migrator.migrate(databaseQueue)
+        
+        try! databaseQueue.write { db in
+            try BabyActivity(
+                activityType: .sleep,
+                startDate: .now.addingTimeInterval(-3600),
+                endDate: .now.addingTimeInterval(-600)
+            ).insert(db)
+        }
+        
+        return databaseQueue
+    }
+}
+
+#Preview {
+    let model = withDependencies {
+//        $0.date.now = Date().addingTimeInterval(3600 * 24 * -60)
+        $0.defaultDatabase = .activityDatabase
+    } operation: {
+        ActivitiesModel()
+    }
+
+    return ActivitiesView(model: model)
 }
 
 extension ActivityType {
@@ -120,7 +144,7 @@ extension ActivityType {
     var title: String {
         switch self {
         case .sleep:
-            "Sleep"
+            String(localized: "sleep_value")
         }
     }
 }

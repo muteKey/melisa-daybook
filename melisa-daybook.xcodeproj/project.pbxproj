@@ -10,8 +10,11 @@
 		8CABDDDB2D99B01E009E5563 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CABDDDA2D99B01E009E5563 /* WidgetKit.framework */; };
 		8CABDDDD2D99B01E009E5563 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CABDDDC2D99B01E009E5563 /* SwiftUI.framework */; };
 		8CABDDEA2D99B020009E5563 /* BabyActivityWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8CABDDD82D99B01E009E5563 /* BabyActivityWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		8CAD15112D8EF5D600431AB3 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 8CAD15102D8EF5D600431AB3 /* ComposableArchitecture */; };
 		8CAD1BE42D8F07BB00431AB3 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 8CAD1BE32D8F07BB00431AB3 /* Alamofire */; };
+		8CE3A9CF2DCBE20900EEA4E0 /* SwiftNavigation in Frameworks */ = {isa = PBXBuildFile; productRef = 8CE3A9CE2DCBE20900EEA4E0 /* SwiftNavigation */; };
+		8CE3A9D12DCBE20900EEA4E0 /* SwiftUINavigation in Frameworks */ = {isa = PBXBuildFile; productRef = 8CE3A9D02DCBE20900EEA4E0 /* SwiftUINavigation */; };
+		8CE3AEB22DCCF1F600EEA4E0 /* SharingGRDB in Frameworks */ = {isa = PBXBuildFile; productRef = 8CE3AEB12DCCF1F600EEA4E0 /* SharingGRDB */; };
+		8CE3AEB42DCCF1F600EEA4E0 /* SharingGRDBCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8CE3AEB32DCCF1F600EEA4E0 /* SharingGRDBCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,7 +59,7 @@
 		8CABE1E82D99B43D009E5563 /* Exceptions for "melisa-daybook" folder in "BabyActivityWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Clients/LiveActivity/BabyActivityAttributes.swift,
+				Services/LiveActivity/BabyActivityAttributes.swift,
 			);
 			target = 8CABDDD72D99B01E009E5563 /* BabyActivityWidgetExtension */;
 		};
@@ -103,8 +106,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8CAD15112D8EF5D600431AB3 /* ComposableArchitecture in Frameworks */,
+				8CE3A9CF2DCBE20900EEA4E0 /* SwiftNavigation in Frameworks */,
 				8CAD1BE42D8F07BB00431AB3 /* Alamofire in Frameworks */,
+				8CE3AEB22DCCF1F600EEA4E0 /* SharingGRDB in Frameworks */,
+				8CE3AEB42DCCF1F600EEA4E0 /* SharingGRDBCore in Frameworks */,
+				8CE3A9D12DCBE20900EEA4E0 /* SwiftUINavigation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -183,8 +189,11 @@
 			);
 			name = "melisa-daybook";
 			packageProductDependencies = (
-				8CAD15102D8EF5D600431AB3 /* ComposableArchitecture */,
 				8CAD1BE32D8F07BB00431AB3 /* Alamofire */,
+				8CE3A9CE2DCBE20900EEA4E0 /* SwiftNavigation */,
+				8CE3A9D02DCBE20900EEA4E0 /* SwiftUINavigation */,
+				8CE3AEB12DCCF1F600EEA4E0 /* SharingGRDB */,
+				8CE3AEB32DCCF1F600EEA4E0 /* SharingGRDBCore */,
 			);
 			productName = "melisa-daybook";
 			productReference = 8CAD14FE2D8EF52000431AB3 /* melisa-daybook.app */;
@@ -198,7 +207,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1620;
-				LastUpgradeCheck = 1620;
+				LastUpgradeCheck = 1630;
 				TargetAttributes = {
 					8CABDDD72D99B01E009E5563 = {
 						CreatedOnToolsVersion = 16.2;
@@ -214,12 +223,14 @@
 			knownRegions = (
 				en,
 				Base,
+				uk,
 			);
 			mainGroup = 8CAD14F52D8EF52000431AB3;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				8CAD150F2D8EF5D600431AB3 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				8CAD1BE22D8F07BB00431AB3 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				8CE3A9CD2DCBE20900EEA4E0 /* XCRemoteSwiftPackageReference "swift-navigation" */,
+				8CE3AEB02DCCF1F600EEA4E0 /* XCRemoteSwiftPackageReference "sharing-grdb" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8CAD14FF2D8EF52000431AB3 /* Products */;
@@ -282,7 +293,6 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = J4BH25WEZ3;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BabyActivityWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BabyActivityWidget;
@@ -309,7 +319,6 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = J4BH25WEZ3;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BabyActivityWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BabyActivityWidget;
@@ -364,6 +373,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = J4BH25WEZ3;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -388,6 +398,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -427,6 +438,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = J4BH25WEZ3;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -444,6 +456,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -456,7 +469,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"melisa-daybook/Preview Content\"";
-				DEVELOPMENT_TEAM = J4BH25WEZ3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "melisa-daybook/Info.plist";
@@ -489,7 +501,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"melisa-daybook/Preview Content\"";
-				DEVELOPMENT_TEAM = J4BH25WEZ3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "melisa-daybook/Info.plist";
@@ -547,14 +558,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		8CAD150F2D8EF5D600431AB3 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.18.0;
-			};
-		};
 		8CAD1BE22D8F07BB00431AB3 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
@@ -563,18 +566,49 @@
 				minimumVersion = 5.10.2;
 			};
 		};
+		8CE3A9CD2DCBE20900EEA4E0 /* XCRemoteSwiftPackageReference "swift-navigation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-navigation";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.3.0;
+			};
+		};
+		8CE3AEB02DCCF1F600EEA4E0 /* XCRemoteSwiftPackageReference "sharing-grdb" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/sharing-grdb";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.2.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		8CAD15102D8EF5D600431AB3 /* ComposableArchitecture */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 8CAD150F2D8EF5D600431AB3 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
-			productName = ComposableArchitecture;
-		};
 		8CAD1BE32D8F07BB00431AB3 /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8CAD1BE22D8F07BB00431AB3 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
+		};
+		8CE3A9CE2DCBE20900EEA4E0 /* SwiftNavigation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8CE3A9CD2DCBE20900EEA4E0 /* XCRemoteSwiftPackageReference "swift-navigation" */;
+			productName = SwiftNavigation;
+		};
+		8CE3A9D02DCBE20900EEA4E0 /* SwiftUINavigation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8CE3A9CD2DCBE20900EEA4E0 /* XCRemoteSwiftPackageReference "swift-navigation" */;
+			productName = SwiftUINavigation;
+		};
+		8CE3AEB12DCCF1F600EEA4E0 /* SharingGRDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8CE3AEB02DCCF1F600EEA4E0 /* XCRemoteSwiftPackageReference "sharing-grdb" */;
+			productName = SharingGRDB;
+		};
+		8CE3AEB32DCCF1F600EEA4E0 /* SharingGRDBCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8CE3AEB02DCCF1F600EEA4E0 /* XCRemoteSwiftPackageReference "sharing-grdb" */;
+			productName = SharingGRDBCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

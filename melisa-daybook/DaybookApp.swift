@@ -6,18 +6,19 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
+import Dependencies
 
 @main
 struct DaybookApp: App {
-    static let store = Store(initialState: ActivitiesFeature.State()) {
-        ActivitiesFeature()
-        ._printChanges()
+    init() {
+        prepareDependencies {
+            $0.defaultDatabase = try! appDatabase()
+        }
     }
 
     var body: some Scene {
         WindowGroup {
-            ActivitiesView(store: DaybookApp.store)
+            ActivitiesView(model: ActivitiesModel())
         }
     }
 }

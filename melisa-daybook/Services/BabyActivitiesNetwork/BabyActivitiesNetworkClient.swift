@@ -17,9 +17,9 @@ struct BabyActivitiesNetworkClient {
     var getAllActivities: () async throws -> [BabyActivity]
     var getActivitiesForDate: (Date) async throws -> [BabyActivity]
     var createActivity: () async throws -> BabyActivity
-    var finishActivity: (UUID) async throws -> BabyActivity
-    var updateActivity: (UUID, ActivityInput) async throws -> BabyActivity
-    var deleteActivity: (UUID) async throws -> Void
+    var finishActivity: (Int) async throws -> BabyActivity
+    var updateActivity: (Int, ActivityInput) async throws -> BabyActivity
+    var deleteActivity: (Int) async throws -> Void
 }
 
 extension BabyActivitiesNetworkClient: DependencyKey {
@@ -75,8 +75,8 @@ extension BabyActivitiesNetworkClient: DependencyKey {
             getActivitiesForDate: { _ in
                 [
                     .init(
-                        id: .init(),
-                        type: .sleep,
+                        id: 1,
+                        activityType: .sleep,
                         startDate: .now,
                         endDate: nil
                     )
@@ -84,24 +84,24 @@ extension BabyActivitiesNetworkClient: DependencyKey {
             },
             createActivity: {
                 .init(
-                    id: UUID(),
-                    type: .sleep,
+                    id: 2,
+                    activityType: .sleep,
                     startDate: .now,
                     endDate: nil
                 )
             },
             finishActivity: { id in
                 .init(
-                    id: id,
-                    type: .sleep,
+                    id: Int64(id),
+                    activityType: .sleep,
                     startDate: .now,
                     endDate: .now
                 )
             },
             updateActivity: { id, input in
                 .init(
-                    id: id,
-                    type: .sleep,
+                    id: Int64(id),
+                    activityType: .sleep,
                     startDate: input.startDate,
                     endDate: input.endDate
                 )

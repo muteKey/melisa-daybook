@@ -19,12 +19,11 @@ extension Calendar {
         
         return 365 // Default in case of an error
     }
-}
-
-extension Date {
-    var endOfDay: Date {
+    
+    func endOfDay(for date: Date) -> Date {
         let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: self)
-        return calendar.date(byAdding: DateComponents(day: 1, second: -1), to: startOfDay) ?? .now
+        let startOfDay = calendar.startOfDay(for: date)
+        return self.date(byAdding: DateComponents(day: 1, second: -1), to: startOfDay) ?? .now
+
     }
 }

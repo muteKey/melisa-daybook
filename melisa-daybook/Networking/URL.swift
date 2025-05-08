@@ -57,17 +57,17 @@ public struct UploadEndpoint {
 public enum Route {
     case allActivities
     case activities
-    case activity(UUID)
-    case finishActivity(UUID)
+    case activity(Int)
+    case finishActivity(Int)
     
     var path: String {
         switch self {
         case .activities:
             "/activities"
         case .activity(let id):
-            "/activities/\(id.uuidString)"
+            "/activities/\(id)"
         case .finishActivity(let id):
-            "/activities/\(id.uuidString)/finish"
+            "/activities/\(id)/finish"
         case .allActivities:
             "/activities/all/"
         }

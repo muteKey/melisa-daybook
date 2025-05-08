@@ -9,43 +9,43 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ActivityDetailsView: View {
-    @Bindable var store: StoreOf<ActivityDetailsFeature>
+    @Bindable var model: ActivityDetailsModel
     
     @State var selected = Date()
     var body: some View {
         VStack {
             Form {
                 HStack {
-                    Text("Duration")
+                    Text("duration")
                     Spacer()
-                    Text(store.activity.duration.formatted())
+                    Text(model.activity.duration.formatted())
                 }
                 HStack {
                     DatePicker(
-                        "Start date",
-                        selection: $store.activity.startDate
+                        "start_date",
+                        selection: $model.activity.startDate
                     )
                 }
                 HStack {
-                    if let bind = Binding(unwrapping: $store.activity.endDate) {
+                    if let bind = Binding(unwrapping: $model.activity.endDate) {
                         DatePicker(
-                            "End date",
+                            "end_date",
                             selection: bind,
-                            in: store.activity.startDate...Date.distantFuture
+                            in: model.activity.startDate...Date.distantFuture
                         )
                         
                     } else {
                         HStack {
-                            Button("Stop") {
-                                store.send(.setEndDateTapped)
+                            Button("stop") {
+                                model.setEndDateTapped()
                             }
                         }
                     }
                 }
             }
 
-            Button("Save") {
-                store.send(.saveTapped)
+            Button("save") {
+                model.saveTapped()
             }
         }
     }
@@ -53,18 +53,13 @@ struct ActivityDetailsView: View {
 
 #Preview {
     ActivityDetailsView(
-        store: Store(initialState:
-                        ActivityDetailsFeature.State(
-                            activity: .init(
-                                id: .init(),
-                                type: .sleep,
-                                startDate: .now,
-                                endDate: nil
-                            )
-                        )
-                    ) {
-                        ActivityDetailsFeature()
-                            ._printChanges()
-                    }
+        model: ActivityDetailsModel(
+            activity: .init(
+                id: 1,
+                activityType: .sleep,
+                startDate: .now,
+                endDate: nil
+            )
+        )
     )
 }
