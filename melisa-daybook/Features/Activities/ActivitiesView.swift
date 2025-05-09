@@ -124,7 +124,6 @@ extension DatabaseWriter where Self == DatabaseQueue {
 
 #Preview {
     let model = withDependencies {
-//        $0.date.now = Date().addingTimeInterval(3600 * 24 * -60)
         $0.defaultDatabase = .activityDatabase
     } operation: {
         ActivitiesModel()
