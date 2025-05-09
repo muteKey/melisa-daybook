@@ -15,7 +15,7 @@ func appDatabase() throws -> any DatabaseWriter {
     config.foreignKeysEnabled = true
     #if DEBUG
     config.prepareDatabase { db in
-        db.trace(options: .profile) {
+        db.trace {
             logger.debug("\($0.expandedDescription)")
         }
     }
@@ -28,7 +28,7 @@ func appDatabase() throws -> any DatabaseWriter {
     case .live:
         let path = URL.documentsDirectory.appendingPathComponent("daybook.sqlite").path()
         logger.debug("open \(path)")
-        database = try DatabasePool(path: path)
+        database = try DatabasePool(path: path, configuration: config)
 
     case .preview, .test:
         database = try DatabaseQueue(configuration: config)

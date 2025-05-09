@@ -46,8 +46,14 @@ final class ActivitiesModel: HashableObject {
     var isLoading = false
     var activityTimerStartDate: Date?
     
-    @ObservationIgnored
-    @Shared(.currentDate) var currentDate
+    var currentDate: Date = .now {
+        didSet {
+            $state = SharedReader(
+                wrappedValue: state,
+                    .fetch(CurrentDateActivities(date: currentDate))
+            )
+        }
+    }
     
     @ObservationIgnored
     @SharedReader var state: CurrentDateActivities.State
@@ -66,11 +72,10 @@ final class ActivitiesModel: HashableObject {
     private var cancellables: Set<AnyCancellable> = []
     
     init() {
-        _state = SharedReader(value: .init())
-        $currentDate.publisher.sink { [weak self] date in
-            guard let self else { return }
-            $state = SharedReader(wrappedValue: state, .fetch(CurrentDateActivities(date: date)))
-        }.store(in: &cancellables)
+        _state = SharedReader(
+            wrappedValue: .init(),
+            .fetch(CurrentDateActivities(date: .now))
+        )
     }
 
     var isCurrentDateToday: Bool {
@@ -99,7 +104,7 @@ final class ActivitiesModel: HashableObject {
         do {
             try database.write { db in
                 var activity = try BabyActivity.find(db, id: id)
-                activity.endDate = Date()
+                activity.endDate = now
                 try activity.update(db)
             }
         } catch {
@@ -113,12 +118,5 @@ final class ActivitiesModel: HashableObject {
             self?.destination = nil
         }
         destination = .activityDetails(model)
-    }
-}
-
-extension SharedKey where Self == AppStorageKey<Date>.Default {
-    static var currentDate: Self {
-        @Dependency(\.date.now) var now
-        return Self[.appStorage("currentDate"), default: now]
     }
 }
