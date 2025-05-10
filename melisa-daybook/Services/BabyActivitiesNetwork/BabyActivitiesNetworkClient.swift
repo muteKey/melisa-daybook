@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import ComposableArchitecture
+import Dependencies
 
 struct ActivityInput: Encodable {
     var startDate: Date

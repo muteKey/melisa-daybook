@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
 
 struct ActivityDetailsView: View {
     @Bindable var model: ActivityDetailsModel
