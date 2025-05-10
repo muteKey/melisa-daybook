@@ -54,14 +54,6 @@ struct ActivitiesView: View {
                     calendarId += 1
                 }
                 
-                if let startDate = model.activityTimerStartDate {
-                    Text(
-                        timerInterval: startDate...Date.distantFuture,
-                        countsDown: false
-                    )
-                    .font(.title3)
-                }
-
                 if model.state.currentActivities.isEmpty {
                     VStack {
                         Spacer()
@@ -83,6 +75,12 @@ struct ActivitiesView: View {
                                                 Image(systemName: "clock.fill")
                                                 Text("\(activity.duration.formatted(.units(width: .narrow)))")
                                             }
+                                        } else {
+                                            Text(
+                                                timerInterval: activity.startDate...Date.distantFuture,
+                                                countsDown: false
+                                            )
+                                            .font(.title3)
                                         }
                                     }
                                 }

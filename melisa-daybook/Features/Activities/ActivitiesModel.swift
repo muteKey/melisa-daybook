@@ -85,7 +85,6 @@ final class ActivitiesModel: HashableObject {
 
     let activityTypes = ActivityType.allCases
     var isLoading = false
-    var activityTimerStartDate: Date?
     
     var currentDate: Date = .now {
         didSet {
@@ -133,7 +132,6 @@ final class ActivitiesModel: HashableObject {
     }
         
     func startActivityTimer() {
-        activityTimerStartDate = now
         do {
             try database.write { db in
                 let activity = BabyActivity(activityType: .sleep, startDate: now)
@@ -146,7 +144,6 @@ final class ActivitiesModel: HashableObject {
     }
     
     func stopActivityTimer(activity: BabyActivity) {
-        activityTimerStartDate = nil
         guard let id = activity.id else { return }
         
         do {
@@ -196,7 +193,6 @@ final class ActivitiesModel: HashableObject {
                 )
                 
                 currentActivity?.endDate = now
-                activityTimerStartDate = nil
                 try currentActivity?.update(db)
             }
         } catch {
