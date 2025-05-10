@@ -48,18 +48,27 @@ struct ActivityDetailsView: View {
                 model.saveTapped()
             }
         }
+        .toolbar {
+            Button {
+                model.deleteTapped()
+            } label: {
+                Image(systemName: "trash.fill")
+            }
+        }
     }
 }
 
 #Preview {
-    ActivityDetailsView(
-        model: ActivityDetailsModel(
-            activity: .init(
-                id: 1,
-                activityType: .sleep,
-                startDate: .now,
-                endDate: nil
+    NavigationStack {
+        ActivityDetailsView(
+            model: ActivityDetailsModel(
+                activity: .init(
+                    id: 1,
+                    activityType: .sleep,
+                    startDate: .now,
+                    endDate: nil
+                )
             )
         )
-    )
+    }
 }

@@ -1,6 +1,19 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@" : {
+      "shouldTranslate" : false
+    },
+    "Awake time: %@" : {
+      "localizations" : {
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Від минулого сну пройшло: %@"
+          }
+        }
+      }
+    },
     "current_date" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -14,6 +27,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Вибрана дата"
+          }
+        }
+      }
+    },
+    "delete" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видалити"
           }
         }
       }
@@ -137,6 +166,16 @@
         }
       }
     },
+    "Sleep time: %@" : {
+      "localizations" : {
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Час сну: %@"
+          }
+        }
+      }
+    },
     "sleep_value" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -187,6 +226,9 @@
           }
         }
       }
+    },
+    "Stop Activity" : {
+
     },
     "today" : {
       "extractionState" : "manual",

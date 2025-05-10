@@ -5,11 +5,11 @@
 //  Created by Kirill Ushkov on 22.03.2025.
 //
 
-import ComposableArchitecture
 import Foundation
 import IssueReporting
 import SharingGRDB
 import Combine
+import SwiftNavigation
 
 @Observable
 final class ActivitiesModel: HashableObject {
@@ -18,20 +18,61 @@ final class ActivitiesModel: HashableObject {
         
         struct State {
             var currentActivities: [BabyActivity] = []
+            var currentSleepDuration: Duration = .seconds(0)
+            var currentAwakeDuration: Duration = .seconds(0)
         }
         
         func fetch(_ db: Database) throws -> State {
             @Dependency(\.calendar) var calendar
             
-            let startOfDay = calendar.startOfDay(for: date)
-            let endOfDay = calendar.endOfDay(for: date)
-
-            return try State(
-                currentActivities: BabyActivity
-                    .filter(Column("startDate") >= startOfDay && Column("startDate") < endOfDay)
-                    .order(Column("startDate").desc)
-                    .fetchAll(db)
-
+            let start = calendar.startOfDay(for: date)
+            let end = calendar.endOfDay(for: date)
+            
+            let activities = try BabyActivity
+                .filter(Column("startDate") >= start && Column("startDate") < end)
+                .order(Column("startDate").desc)
+                .fetchAll(db)
+              
+            let sleepDuration = try Int.fetchOne(
+                db,
+                sql: """
+                    SELECT sum(strftime('%s', endDate) - strftime('%s', startDate))
+                    FROM baby_activities
+                    WHERE (startDate >= ?) AND (startDate <= ?) AND endDate IS NOT NULL
+                """,
+                arguments: [start, end]
+            ) ?? 0
+            
+            let isToday = calendar.isDateInToday(date)
+            
+            let awakeDuration: Int
+            
+            if isToday {
+                awakeDuration = try Int.fetchOne(
+                    db,
+                    sql: """
+                        SELECT strftime('%s', 'now') - strftime('%s', max(endDate))
+                        FROM baby_activities
+                        WHERE (startDate >= ?) AND (startDate <= ?) AND endDate IS NOT NULL
+                    """,
+                    arguments: [start, end]
+                ) ?? 0
+            } else {
+                awakeDuration = try Int.fetchOne(
+                    db,
+                    sql: """
+                        SELECT strftime('%s', ?) - strftime('%s', max(endDate))
+                        FROM baby_activities
+                        WHERE (startDate >= ?) AND (startDate <= ?) AND endDate IS NOT NULL
+                    """,
+                    arguments: [end, start, end]
+                ) ?? 0
+            }
+            
+            return State(
+                currentActivities: activities,
+                currentSleepDuration: Duration.seconds(sleepDuration),
+                currentAwakeDuration: Duration.seconds(awakeDuration)
             )
         }
     }
@@ -76,6 +117,12 @@ final class ActivitiesModel: HashableObject {
             wrappedValue: .init(),
             .fetch(CurrentDateActivities(date: .now))
         )
+        
+        NotificationCenter.default
+            .publisher(for: .stopActivity)
+            .sink { [weak self] _ in
+                self?.stopCurrentActivity()
+            }.store(in: &cancellables)
     }
 
     var isCurrentDateToday: Bool {
@@ -91,6 +138,7 @@ final class ActivitiesModel: HashableObject {
             try database.write { db in
                 let activity = BabyActivity(activityType: .sleep, startDate: now)
                 try activity.insert(db)
+                liveActivityClient.startActivity(.init(startDate: now))
             }
         } catch {
             reportIssue(error)
@@ -106,6 +154,17 @@ final class ActivitiesModel: HashableObject {
                 var activity = try BabyActivity.find(db, id: id)
                 activity.endDate = now
                 try activity.update(db)
+                liveActivityClient.endActivity()
+            }
+        } catch {
+            reportIssue(error)
+        }
+    }
+    
+    func deleteActivity(_ activity: BabyActivity) {
+        do {
+            _ = try database.write { db in
+                try activity.delete(db)
             }
         } catch {
             reportIssue(error)
@@ -114,9 +173,34 @@ final class ActivitiesModel: HashableObject {
     
     func select(activity: BabyActivity) {
         let model = ActivityDetailsModel(activity: activity)
-        model.onSave = { [weak self] in
+        model.onFinish = { [weak self] in
             self?.destination = nil
         }
         destination = .activityDetails(model)
+    }
+    
+    func stopCurrentActivity() {
+        do {
+            try database.write { db in
+                let start = calendar.startOfDay(for: currentDate)
+                let end = calendar.endOfDay(for: currentDate)
+             
+                var currentActivity = try BabyActivity.fetchOne(
+                    db,
+                    sql: """
+                        SELECT *
+                        FROM baby_activities
+                        WHERE (startDate >= ?) AND (startDate <= ?) AND endDate IS NULL
+                    """,
+                    arguments: [start, end]
+                )
+                
+                currentActivity?.endDate = now
+                activityTimerStartDate = nil
+                try currentActivity?.update(db)
+            }
+        } catch {
+            reportIssue(error)
+        }
     }
 }

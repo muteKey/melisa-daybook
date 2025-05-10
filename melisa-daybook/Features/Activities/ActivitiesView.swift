@@ -12,10 +12,21 @@ import GRDB
 
 struct ActivitiesView: View {
     @Bindable var model: ActivitiesModel
+    @State private var calendarId: Int = 0
     
     var body: some View {
         NavigationStack {
             VStack {
+                HStack {
+                    Text("Sleep time: \(model.state.currentSleepDuration.formatted(.units(width: .narrow)))")
+                    Spacer()
+                }
+                
+                HStack {
+                    Text("Awake time: \(model.state.currentAwakeDuration.formatted(.units(width: .narrow)))")
+                    Spacer()
+                }
+
                 if model.isCurrentDateToday {
                     ScrollView(.horizontal, showsIndicators: false) {
                         ForEach(model.activityTypes) { activityType in
@@ -38,6 +49,10 @@ struct ActivitiesView: View {
                     selection: $model.currentDate,
                     displayedComponents: [.date]
                 )
+                .id(calendarId)
+                .onChange(of: model.currentDate) {
+                    calendarId += 1
+                }
                 
                 if let startDate = model.activityTimerStartDate {
                     Text(
@@ -62,8 +77,13 @@ struct ActivitiesView: View {
                                 HStack {
                                     activity.activityType.image
                                     VStack(alignment: .leading) {
-                                        Text(activity.activityType.title)
                                         Text(activity.intervalText)
+                                        if activity.endDate != nil {
+                                            HStack {
+                                                Image(systemName: "clock.fill")
+                                                Text("\(activity.duration.formatted(.units(width: .narrow)))")
+                                            }
+                                        }
                                     }
                                 }
                                 if activity.endDate == nil {
@@ -71,10 +91,16 @@ struct ActivitiesView: View {
                                         model.stopActivityTimer(activity: activity)
                                     }
                                     .padding()
-                                    .background(Color(red: 0, green: 0, blue: 0.5))
+                                    .background(Color.gray.opacity(0.3))
                                     .clipShape(Capsule())
                                 }
                             }
+                        }
+                        .swipeActions {
+                            Button("delete") {
+                                model.deleteActivity(activity)
+                            }
+                            .tint(Color.red)
                         }
                     }
                 }

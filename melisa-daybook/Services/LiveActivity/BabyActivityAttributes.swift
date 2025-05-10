@@ -15,3 +15,7 @@ struct BabyActivityAttributes: ActivityAttributes {
         let startDate: Date
     }
 }
+
+extension Notification.Name {
+    static var stopActivity = Notification.Name("stopActivity")
+}

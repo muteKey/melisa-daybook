@@ -70,12 +70,20 @@
 			);
 			target = 8CAD14FD2D8EF52000431AB3 /* melisa-daybook */;
 		};
+		8CEA2C712DCF925E0056A64B /* Exceptions for "BabyActivityWidget" folder in "melisa-daybook" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				StopActivityIntent.swift,
+			);
+			target = 8CAD14FD2D8EF52000431AB3 /* melisa-daybook */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8CABDDDE2D99B01E009E5563 /* BabyActivityWidget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				8CEA2C712DCF925E0056A64B /* Exceptions for "BabyActivityWidget" folder in "melisa-daybook" target */,
 				8CABDDEF2D99B020009E5563 /* Exceptions for "BabyActivityWidget" folder in "BabyActivityWidgetExtension" target */,
 			);
 			path = BabyActivityWidget;

@@ -18,7 +18,7 @@ final class ActivityDetailsModel: HashableObject {
     @ObservationIgnored
     @Dependency(\.defaultDatabase) private var database
     
-    var onSave: () -> Void = unimplemented()
+    var onFinish: () -> Void = unimplemented()
     
     var activity: BabyActivity
     init(activity: BabyActivity) {
@@ -33,7 +33,18 @@ final class ActivityDetailsModel: HashableObject {
         do {
             try database.write { db in
                 try activity.update(db)
-                onSave()
+                onFinish()
+            }
+        } catch {
+            reportIssue(error)
+        }
+    }
+    
+    func deleteTapped() {
+        do {
+            _ = try database.write { db in
+                try activity.delete(db)
+                onFinish()
             }
         } catch {
             reportIssue(error)
