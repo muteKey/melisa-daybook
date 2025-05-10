@@ -54,9 +54,11 @@ struct BabyActivityWidgetView: View {
                 .foregroundStyle(.white)
             
             Button(intent: StopActivityIntent()) {
-                Image(.close)
+                Image(systemName: "stop.fill")
+                    .foregroundColor(.white)
             }
             .frame(width: 50, height: 50)
+            .background(Circle().fill(.stopRed))
             .tint(.clear)
 
         }
@@ -90,9 +92,11 @@ private func expandedContent(contentState: BabyActivityAttributes.ContentState) 
                 .font(.system(size: 32, weight: .semibold))
 
             Button(intent: StopActivityIntent()) {
-                Image(.close)
+                Image(systemName: "stop.fill")
+                    .foregroundColor(.white)
             }
             .frame(width: 50, height: 50)
+            .background(Circle().fill(.stopRed))
             .tint(.clear)
         }
     }
