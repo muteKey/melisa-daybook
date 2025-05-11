@@ -143,21 +143,6 @@ final class ActivitiesModel: HashableObject {
         }
     }
     
-    func stopActivityTimer(activity: BabyActivity) {
-        guard let id = activity.id else { return }
-        
-        do {
-            try database.write { db in
-                var activity = try BabyActivity.find(db, id: id)
-                activity.endDate = now
-                try activity.update(db)
-                liveActivityClient.endActivity()
-            }
-        } catch {
-            reportIssue(error)
-        }
-    }
-    
     func deleteActivity(_ activity: BabyActivity) {
         do {
             _ = try database.write { db in
@@ -179,21 +164,38 @@ final class ActivitiesModel: HashableObject {
     func stopCurrentActivity() {
         do {
             try database.write { db in
-                let start = calendar.startOfDay(for: currentDate)
-                let end = calendar.endOfDay(for: currentDate)
+                let startOfCurrentDay = calendar.startOfDay(for: currentDate)
+                let endofCurrentDay = calendar.endOfDay(for: currentDate)
              
-                var currentActivity = try BabyActivity.fetchOne(
+                guard var currentActivity = try BabyActivity.fetchOne(
                     db,
                     sql: """
                         SELECT *
                         FROM baby_activities
                         WHERE (startDate >= ?) AND (startDate <= ?) AND endDate IS NULL
                     """,
-                    arguments: [start, end]
-                )
+                    arguments: [startOfCurrentDay, endofCurrentDay]
+                ) else {
+                    return
+                }
                 
-                currentActivity?.endDate = now
-                try currentActivity?.update(db)
+                if calendar.isDateInToday(currentActivity.startDate) {
+                    currentActivity.endDate = now
+                    try currentActivity.update(db)
+                } else {
+                    currentActivity.endDate = calendar.endOfDay(for: currentActivity.startDate)
+                    try currentActivity.update(db)
+                    
+                    var newActivity = BabyActivity(
+                        activityType: currentActivity.activityType,
+                        startDate: calendar.startOfDay(for: now)
+                    )
+                    print("newActivity", newActivity)
+                    newActivity.endDate = now
+                    try newActivity.insert(db)
+                }
+                
+                liveActivityClient.endActivity()
             }
         } catch {
             reportIssue(error)

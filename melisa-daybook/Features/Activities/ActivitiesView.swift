@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftUINavigation
 import Dependencies
 import GRDB
+import Foundation
 
 struct ActivitiesView: View {
     @Bindable var model: ActivitiesModel
@@ -86,7 +87,7 @@ struct ActivitiesView: View {
                                 }
                                 if activity.endDate == nil {
                                     Button("stop") {
-                                        model.stopActivityTimer(activity: activity)
+                                        model.stopCurrentActivity()
                                     }
                                     .padding()
                                     .background(Color.gray.opacity(0.3))
@@ -120,40 +121,28 @@ struct ActivitiesView: View {
     }
 }
 
-extension DatabaseWriter where Self == DatabaseQueue {
-    static var activityDatabase: Self {
-        let databaseQueue = try! DatabaseQueue()
-        var migrator = DatabaseMigrator()
-        migrator.registerMigration("Create Baby Activities Table") { db in
-            try db.create(table: "baby_activities", options: [.strict]) { t in
-                t.autoIncrementedPrimaryKey("id")
-                t.column("activityType", .text).notNull()
-                t.column("startDate", .text).notNull()
-                t.column("endDate", .text)
-            }
-        }
-        try! migrator.migrate(databaseQueue)
-        
-        try! databaseQueue.write { db in
-            try BabyActivity(
-                activityType: .sleep,
-                startDate: .now.addingTimeInterval(-3600),
-                endDate: .now.addingTimeInterval(-600)
-            ).insert(db)
-        }
-        
-        return databaseQueue
+#Preview {
+    prepareDependencies {
+        $0.defaultDatabase = try! appDatabase()
     }
+
+    @Dependency(\.defaultDatabase) var db
+    seedMockDb(db)
+    return ActivitiesView(model: ActivitiesModel())
 }
 
-#Preview {
-    let model = withDependencies {
-        $0.defaultDatabase = .activityDatabase
-    } operation: {
-        ActivitiesModel()
+func seedMockDb(_ database: any DatabaseWriter) {
+    do {
+        try database.write { db in
+            try BabyActivity(
+                activityType: .sleep,
+                startDate: .now.addingTimeInterval(60 * 60 * 24 * -1),
+                endDate: nil
+            ).insert(db)
+        }
+    } catch {
+        reportIssue(error)
     }
-
-    return ActivitiesView(model: model)
 }
 
 extension ActivityType {
