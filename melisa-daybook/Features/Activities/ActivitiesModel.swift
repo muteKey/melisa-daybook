@@ -190,7 +190,6 @@ final class ActivitiesModel: HashableObject {
                         activityType: currentActivity.activityType,
                         startDate: calendar.startOfDay(for: now)
                     )
-                    print("newActivity", newActivity)
                     newActivity.endDate = now
                     try newActivity.insert(db)
                 }
