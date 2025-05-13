@@ -130,6 +130,14 @@ final class ActivitiesModel: HashableObject {
     
     func viewAppeared() {
     }
+    
+    func refresh() async {
+        do {
+            try await _state.load()
+        } catch {
+            reportIssue(error)
+        }
+    }
         
     func startActivityTimer() {
         do {
