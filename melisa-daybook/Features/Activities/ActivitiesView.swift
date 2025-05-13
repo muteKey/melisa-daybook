@@ -102,6 +102,9 @@ struct ActivitiesView: View {
                             .tint(Color.red)
                         }
                     }
+                    .refreshable {
+                        await model.refresh()
+                    }
                 }
             }
             .onAppear {
