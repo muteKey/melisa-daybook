@@ -13,15 +13,20 @@ import GRDB
 func appDatabase() throws -> any DatabaseWriter {
     var config = Configuration()
     config.foreignKeysEnabled = true
+    @Dependency(\.context) var context
+
     #if DEBUG
     config.prepareDatabase { db in
         db.trace {
-            logger.debug("\($0.expandedDescription)")
+            if context == .preview {
+                print($0.expandedDescription)
+            } else {
+                logger.debug("\($0.expandedDescription)")
+            }
         }
     }
     #endif
     
-    @Dependency(\.context) var context
     let database: any DatabaseWriter
     
     switch context {
