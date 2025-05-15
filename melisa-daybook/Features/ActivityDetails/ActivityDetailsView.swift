@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import Dependencies
+import GRDB
 
 struct ActivityDetailsView: View {
     @Bindable var model: ActivityDetailsModel
@@ -58,16 +60,36 @@ struct ActivityDetailsView: View {
 }
 
 #Preview {
-    NavigationStack {
+    prepareDependencies {
+        $0.defaultDatabase = try! appDatabase()
+    }
+    
+    @Dependency(\.defaultDatabase) var db
+    
+    let activity: BabyActivity = .init(
+        id: 1,
+        activityType: .sleep,
+        startDate: .now,
+        endDate: nil
+    )
+    
+    func seedMockDb(_ database: any DatabaseWriter, activity: BabyActivity) {
+        do {
+            try database.write { db in
+                try activity.insert(db)
+            }
+        } catch {
+            reportIssue(error)
+        }
+    }
+    
+    seedMockDb(db, activity: activity)
+    
+    return NavigationStack {
         ActivityDetailsView(
-            model: ActivityDetailsModel(
-                activity: .init(
-                    id: 1,
-                    activityType: .sleep,
-                    startDate: .now,
-                    endDate: nil
-                )
-            )
+            model: ActivityDetailsModel(activity:activity)
         )
     }
 }
+
+

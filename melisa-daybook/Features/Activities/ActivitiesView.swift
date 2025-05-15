@@ -128,24 +128,24 @@ struct ActivitiesView: View {
     prepareDependencies {
         $0.defaultDatabase = try! appDatabase()
     }
+    
+    func seedMockDb(_ database: any DatabaseWriter) {
+        do {
+            try database.write { db in
+                try BabyActivity(
+                    activityType: .sleep,
+                    startDate: .now.addingTimeInterval(60 * 60 * 24 * -1),
+                    endDate: nil
+                ).insert(db)
+            }
+        } catch {
+            reportIssue(error)
+        }
+    }
 
     @Dependency(\.defaultDatabase) var db
     seedMockDb(db)
     return ActivitiesView(model: ActivitiesModel())
-}
-
-func seedMockDb(_ database: any DatabaseWriter) {
-    do {
-        try database.write { db in
-            try BabyActivity(
-                activityType: .sleep,
-                startDate: .now.addingTimeInterval(60 * 60 * 24 * -1),
-                endDate: nil
-            ).insert(db)
-        }
-    } catch {
-        reportIssue(error)
-    }
 }
 
 extension ActivityType {

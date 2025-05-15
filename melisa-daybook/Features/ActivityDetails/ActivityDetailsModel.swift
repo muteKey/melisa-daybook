@@ -18,6 +18,9 @@ final class ActivityDetailsModel: HashableObject {
     @ObservationIgnored
     @Dependency(\.defaultDatabase) private var database
     
+    @ObservationIgnored
+    @Dependency(\.liveActivityClient) private var liveActivityClient
+    
     var onFinish: () -> Void = unimplemented()
     
     var activity: BabyActivity
@@ -33,6 +36,9 @@ final class ActivityDetailsModel: HashableObject {
         do {
             try database.write { db in
                 try activity.update(db)
+                if activity.endDate == nil {
+                    liveActivityClient.updateActivity(.init(startDate: activity.startDate))
+                }
                 onFinish()
             }
         } catch {
