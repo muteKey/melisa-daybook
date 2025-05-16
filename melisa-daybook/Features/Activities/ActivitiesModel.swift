@@ -170,19 +170,17 @@ final class ActivitiesModel: HashableObject {
     }
     
     func stopCurrentActivity() {
+        liveActivityClient.endExistingActivities()
+
         do {
             try database.write { db in
-                let startOfCurrentDay = calendar.startOfDay(for: currentDate)
-                let endofCurrentDay = calendar.endOfDay(for: currentDate)
-             
                 guard var currentActivity = try BabyActivity.fetchOne(
                     db,
                     sql: """
                         SELECT *
                         FROM baby_activities
-                        WHERE (startDate >= ?) AND (startDate <= ?) AND endDate IS NULL
+                        WHERE endDate IS NULL
                     """,
-                    arguments: [startOfCurrentDay, endofCurrentDay]
                 ) else {
                     return
                 }
@@ -201,8 +199,6 @@ final class ActivitiesModel: HashableObject {
                     newActivity.endDate = now
                     try newActivity.insert(db)
                 }
-                
-                liveActivityClient.endActivity()
             }
         } catch {
             reportIssue(error)

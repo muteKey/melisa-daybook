@@ -125,8 +125,19 @@ struct ActivitiesView: View {
 }
 
 #Preview {
+    var components = DateComponents()
+    components.year = 2025
+    components.month = 5
+    components.day = 16
+    components.hour = 23
+    components.minute = 59
+    components.second = 30
+    
+    let date = Calendar.current.date(from: components)!
+
     prepareDependencies {
         $0.defaultDatabase = try! appDatabase()
+        $0.date.now = date
     }
     
     func seedMockDb(_ database: any DatabaseWriter) {
