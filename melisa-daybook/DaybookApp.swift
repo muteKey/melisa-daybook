@@ -13,19 +13,19 @@ let BACKGROUND_TASKS_ID = "com.melissadaybook.update"
 
 @main
 struct DaybookApp: App {
-    var model: ActivitiesModel
+    var model: TabsModel
     init() {
         prepareDependencies {
             $0.defaultDatabase = try! appDatabase()
         }
-        self.model = ActivitiesModel()
+        self.model = TabsModel()
         registerBackgroundTask()
         scheduleAppRefresh()
     }
 
     var body: some Scene {
         WindowGroup {
-            ActivitiesView(model: model)
+            TabsView(model: model)
         }
     }
     

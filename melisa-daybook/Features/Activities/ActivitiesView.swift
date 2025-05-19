@@ -16,112 +16,109 @@ struct ActivitiesView: View {
     @State private var calendarId: Int = 0
     
     var body: some View {
-        NavigationStack {
-            VStack {
-                HStack {
-                    Text("Sleep time: \(model.state.currentSleepDuration.formatted(.units(width: .narrow)))")
-                    Spacer()
-                }
-                
-                HStack {
-                    Text("Awake time: \(model.state.currentAwakeDuration.formatted(.units(width: .narrow)))")
-                    Spacer()
-                }
+        VStack {
+            HStack {
+                Text("Sleep time: \(model.state.currentSleepDuration.formatted(.units(width: .narrow)))")
+                Spacer()
+            }
+            
+            HStack {
+                Text("Awake time: \(model.state.currentAwakeDuration.formatted(.units(width: .narrow)))")
+                Spacer()
+            }
 
-                if model.isCurrentDateToday {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        ForEach(model.activityTypes) { activityType in
-                            VStack {
-                                activityType.image
-                                Text(activityType.title)
-                            }
-                            .frame(width: 65, height: 65)
-                            .background(Color.gray.opacity(0.3))
-                            .clipShape(Circle())
-                            .onTapGesture {
-                                model.startActivityTimer()
-                            }
+            if model.isCurrentDateToday {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    ForEach(model.activityTypes) { activityType in
+                        VStack {
+                            activityType.image
+                            Text(activityType.title)
+                        }
+                        .frame(width: 65, height: 65)
+                        .background(Color.gray.opacity(0.3))
+                        .clipShape(Circle())
+                        .onTapGesture {
+                            model.startActivityTimer()
                         }
                     }
                 }
-                                
-                DatePicker(
-                    model.isCurrentDateToday ? "today" : "current_date",
-                    selection: $model.currentDate,
-                    displayedComponents: [.date]
-                )
-                .id(calendarId)
-                .onChange(of: model.currentDate) {
-                    calendarId += 1
+            }
+                            
+            DatePicker(
+                model.isCurrentDateToday ? "today" : "current_date",
+                selection: $model.currentDate,
+                displayedComponents: [.date]
+            )
+            .id(calendarId)
+            .onChange(of: model.currentDate) {
+                calendarId += 1
+            }
+            
+            if model.state.currentActivities.isEmpty {
+                VStack {
+                    Spacer()
+                    Text("no_activities")
+                    Spacer()
                 }
-                
-                if model.state.currentActivities.isEmpty {
-                    VStack {
-                        Spacer()
-                        Text("no_activities")
-                        Spacer()
-                    }
-                } else {
-                    List(model.state.currentActivities) { activity in
-                        Button {
-                            model.select(activity: activity)
-                        } label: {
-                            VStack(alignment: .leading) {
-                                HStack {
-                                    activity.activityType.image
-                                    VStack(alignment: .leading) {
-                                        Text(activity.intervalText)
-                                        if activity.endDate != nil {
-                                            HStack {
-                                                Image(systemName: "clock.fill")
-                                                Text("\(activity.duration.formatted(.units(width: .narrow)))")
-                                            }
-                                        } else {
-                                            Text(
-                                                timerInterval: activity.startDate...Date.distantFuture,
-                                                countsDown: false
-                                            )
-                                            .font(.title3)
+            } else {
+                List(model.state.currentActivities) { activity in
+                    Button {
+                        model.select(activity: activity)
+                    } label: {
+                        VStack(alignment: .leading) {
+                            HStack {
+                                activity.activityType.image
+                                VStack(alignment: .leading) {
+                                    Text(activity.intervalText)
+                                    if activity.endDate != nil {
+                                        HStack {
+                                            Image(systemName: "clock.fill")
+                                            Text("\(activity.duration.formatted(.units(width: .narrow)))")
                                         }
+                                    } else {
+                                        Text(
+                                            timerInterval: activity.startDate...Date.distantFuture,
+                                            countsDown: false
+                                        )
+                                        .font(.title3)
                                     }
                                 }
-                                if activity.endDate == nil {
-                                    Button("stop") {
-                                        model.stopCurrentActivity()
-                                    }
-                                    .padding()
-                                    .background(Color.gray.opacity(0.3))
-                                    .clipShape(Capsule())
+                            }
+                            if activity.endDate == nil {
+                                Button("stop") {
+                                    model.stopCurrentActivity()
                                 }
+                                .padding()
+                                .background(Color.gray.opacity(0.3))
+                                .clipShape(Capsule())
                             }
                         }
-                        .swipeActions {
-                            Button("delete") {
-                                model.deleteActivity(activity)
-                            }
-                            .tint(Color.red)
+                    }
+                    .swipeActions {
+                        Button("delete") {
+                            model.deleteActivity(activity)
                         }
-                    }
-                    .refreshable {
-                        await model.refresh()
+                        .tint(Color.red)
                     }
                 }
-            }
-            .onAppear {
-                model.viewAppeared()
-            }
-            .padding()
-            .sheet(item: $model.destination.activityDetails, id: \.hashValue) { model in
-                NavigationStack {
-                    ActivityDetailsView(model: model)
-                        .navigationTitle("details")
-                        .navigationBarTitleDisplayMode(.inline)
-                    
+                .refreshable {
+                    await model.refresh()
                 }
             }
-            .navigationTitle("melissa_daybook")
         }
-    }
+        .onAppear {
+            model.viewAppeared()
+        }
+        .padding()
+        .sheet(item: $model.destination.activityDetails, id: \.hashValue) { model in
+            NavigationStack {
+                ActivityDetailsView(model: model)
+                    .navigationTitle("details")
+                    .navigationBarTitleDisplayMode(.inline)
+                
+            }
+        }
+        .navigationTitle("melissa_daybook")    }
 }
 
 #Preview {

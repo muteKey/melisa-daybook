@@ -4,12 +4,44 @@
     "%@" : {
       "shouldTranslate" : false
     },
+    "activities" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activities"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Записи"
+          }
+        }
+      }
+    },
     "Awake time: %@" : {
       "localizations" : {
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Від минулого сну пройшло: %@"
+          }
+        }
+      }
+    },
+    "charts" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Charts"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Графіки"
           }
         }
       }
@@ -228,7 +260,7 @@
       }
     },
     "Stop Activity" : {
-
+      "shouldTranslate" : false
     },
     "today" : {
       "extractionState" : "manual",
