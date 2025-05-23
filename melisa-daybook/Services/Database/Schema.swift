@@ -7,18 +7,23 @@
 
 import Foundation
 import GRDB
+import SharingGRDB
 
-enum ActivityType: String, Codable, CaseIterable, Identifiable {
+enum ActivityType: String, Codable, CaseIterable, Identifiable, QueryBindable {
     case sleep
     
     var id: RawValue { rawValue }
 }
 
+@Table("baby_activities")
 struct BabyActivity: Codable, Identifiable, Equatable, PersistableRecord, FetchableRecord {
     var id: Int64?
     var activityType: ActivityType
     
+    @Column(as: Date.ISO8601Representation.self)
     var startDate: Date
+    
+    @Column(as: Date.ISO8601Representation?.self)
     var endDate: Date?
     
     static var databaseTableName: String {

@@ -128,8 +128,7 @@ final class ActivitiesModel: HashableObject {
         calendar.isDateInToday(currentDate)
     }
     
-    func viewAppeared() {
-    }
+    func viewAppeared() {}
     
     func refresh() async {
         do {
