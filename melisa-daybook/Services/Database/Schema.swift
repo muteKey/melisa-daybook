@@ -33,24 +33,7 @@ struct BabyActivity: Codable, Identifiable, Equatable, PersistableRecord, Fetcha
     mutating func didInsert(_ inserted: InsertionSuccess) {
         id = inserted.rowID
     }
-    
-    var intervalText: String {
-        let startDateText = startDate.formatted(
-            date: .omitted,
-            time: .shortened
-        )
-        let endDateText: String
-        if let endDate {
-            endDateText = endDate.formatted(
-                date: .omitted,
-                time: .shortened
-            )
-        } else {
-            endDateText = String(localized: "in_process")
-        }
-        return "\(startDateText) - \(endDateText)"
-    }
-    
+        
     var duration: Duration {
         guard let endDate else { return .seconds(0) }
         let diffComponents = Calendar.current.dateComponents([.second], from: startDate, to: endDate)

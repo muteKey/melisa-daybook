@@ -26,7 +26,7 @@ struct ActivitiesView: View {
                 Text("Awake time: \(model.state.currentAwakeDuration.formatted(.units(width: .narrow)))")
                 Spacer()
             }
-
+            
             if model.isCurrentDateToday {
                 ScrollView(.horizontal, showsIndicators: false) {
                     ForEach(model.activityTypes) { activityType in
@@ -43,7 +43,7 @@ struct ActivitiesView: View {
                     }
                 }
             }
-                            
+            
             DatePicker(
                 model.isCurrentDateToday ? "today" : "current_date",
                 selection: $model.currentDate,
@@ -69,7 +69,7 @@ struct ActivitiesView: View {
                             HStack {
                                 activity.activityType.image
                                 VStack(alignment: .leading) {
-                                    Text(activity.intervalText)
+                                    Text(model.intervalText(for: activity))
                                     if activity.endDate != nil {
                                         HStack {
                                             Image(systemName: "clock.fill")
@@ -118,7 +118,8 @@ struct ActivitiesView: View {
                 
             }
         }
-        .navigationTitle("melissa_daybook")    }
+        .navigationTitle("melissa_daybook")
+    }
 }
 
 #Preview {

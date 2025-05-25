@@ -11,6 +11,7 @@ struct ChartsView: View {
     @Bindable var model: ChartsModel
     var body: some View {
         EmptyView()
+            .navigationTitle("charts")
     }
 }
 

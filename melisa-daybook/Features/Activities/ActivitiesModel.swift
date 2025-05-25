@@ -24,23 +24,59 @@ final class ActivitiesModel: HashableObject {
         
         func fetch(_ db: Database) throws -> State {
             @Dependency(\.calendar) var calendar
+                        
+            let activities = try BabyActivity.fetchAll(
+                db,
+                sql: """
+                    SELECT * 
+                    FROM baby_activities
+                    WHERE startDate >= date(?, 'start of day', 'localtime') 
+                        AND startDate <= date(?, 'start of day', 'localtime', '+23:59:59')
+                        OR 
+                        (endDate >= date(?, 'start of day', 'localtime')  
+                        AND endDate <= date(?, 'start of day', 'localtime', '+23:59:59'))                    
+                """,
+                arguments: [date, date, date, date]
+            )
             
-            let start = calendar.startOfDay(for: date)
-            let end = calendar.endOfDay(for: date)
-            
-            let activities = try BabyActivity
-                .filter(Column("startDate") >= start && Column("startDate") < end)
-                .order(Column("startDate").desc)
-                .fetchAll(db)
-              
-            let sleepDuration = try Int.fetchOne(
+            let sleepDurationDuringDay = try Int.fetchOne(
                 db,
                 sql: """
                     SELECT sum(strftime('%s', endDate) - strftime('%s', startDate))
                     FROM baby_activities
-                    WHERE (startDate >= ?) AND (startDate <= ?) AND endDate IS NOT NULL
+                    WHERE startDate >= date(?, 'start of day', 'localtime') 
+                        AND startDate <= date(?, 'start of day', 'localtime', '+23:59:59')
+                        AND endDate >= date(?, 'start of day', 'localtime')  
+                        AND endDate <= date(?, 'start of day', 'localtime', '+23:59:59')                    
                 """,
-                arguments: [start, end]
+                arguments: [date, date, date, date]
+            ) ?? 0
+            
+            let sleepDurationAfterMidnight = try Int.fetchOne(
+                db,
+                sql: """
+                    SELECT sum(strftime('%s', endDate) - strftime('%s', date(endDate, 'start of day', 'localtime')))
+                        FROM baby_activities
+                    WHERE 
+                    (startDate < date(?, 'start of day', 'localtime') 
+                     OR startDate > date(?, 'start of day', 'localtime', '+23:59:59'))                
+                    AND (endDate >= date(?, 'start of day', 'localtime')) 
+                    AND (endDate <= date(?, 'start of day', 'localtime', '+23:59:59'))
+                """,
+                arguments: [date, date, date, date]
+            ) ?? 0
+            
+            let sleepDurationBeforeMidnight = try Int.fetchOne(
+                db,
+                sql: """
+                    SELECT strftime('%s', date(?, 'start of day', 'localtime', '+23:59:59')) - strftime('%s', startDate)
+                        FROM baby_activities
+                    WHERE 
+                        startDate >= date(?, 'start of day', 'localtime')
+                        AND startDate <= date(?, 'start of day', 'localtime', '+23:59:59')
+                    AND ("endDate" > date(?, 'start of day', 'localtime', '+23:59:59'))
+                """,
+                arguments: [date, date, date, date]
             ) ?? 0
             
             let isToday = calendar.isDateInToday(date)
@@ -53,25 +89,30 @@ final class ActivitiesModel: HashableObject {
                     sql: """
                         SELECT strftime('%s', 'now') - strftime('%s', max(endDate))
                         FROM baby_activities
-                        WHERE (startDate >= ?) AND (startDate <= ?) AND endDate IS NOT NULL
+                        WHERE (startDate >= date(?, 'start of day', 'localtime'))
+                        AND (startDate <= date(?, 'start of day', 'localtime', '+23:59:59')) 
+                        AND endDate IS NOT NULL
                     """,
-                    arguments: [start, end]
+                    arguments: [date, date]
                 ) ?? 0
             } else {
                 awakeDuration = try Int.fetchOne(
                     db,
                     sql: """
-                        SELECT strftime('%s', ?) - strftime('%s', max(endDate))
+                        SELECT strftime('%s', date(?, 'start of day', 'localtime', '+23:59:59')) - strftime('%s', max(endDate))
                         FROM baby_activities
-                        WHERE (startDate >= ?) AND (startDate <= ?) AND endDate IS NOT NULL
+                        WHERE (startDate >= date(?, 'start of day', 'localtime')) 
+                        AND (startDate <= date(?, 'start of day', 'localtime', '+23:59:59'))
+                        AND (endDate >= date(?, 'start of day', 'localtime')) 
+                        AND (endDate <= date(?, 'start of day', 'localtime', '+23:59:59'))
                     """,
-                    arguments: [end, start, end]
+                    arguments: [date, date, date, date, date]
                 ) ?? 0
             }
             
             return State(
                 currentActivities: activities,
-                currentSleepDuration: Duration.seconds(sleepDuration),
+                currentSleepDuration: Duration.seconds(sleepDurationDuringDay + sleepDurationBeforeMidnight + sleepDurationAfterMidnight),
                 currentAwakeDuration: Duration.seconds(awakeDuration)
             )
         }
@@ -183,24 +224,21 @@ final class ActivitiesModel: HashableObject {
                 ) else {
                     return
                 }
-                
-                if calendar.isDateInToday(currentActivity.startDate) {
-                    currentActivity.endDate = now
-                    try currentActivity.update(db)
-                } else {
-                    currentActivity.endDate = calendar.endOfDay(for: currentActivity.startDate)
-                    try currentActivity.update(db)
-                    
-                    var newActivity = BabyActivity(
-                        activityType: currentActivity.activityType,
-                        startDate: calendar.startOfDay(for: now)
-                    )
-                    newActivity.endDate = now
-                    try newActivity.insert(db)
-                }
+
+                currentActivity.endDate = now
+                try currentActivity.update(db)
             }
         } catch {
             reportIssue(error)
         }
+    }
+    
+    func intervalText(for activity: BabyActivity) -> String {
+        formatInterval(
+            activity.startDate,
+            end: activity.endDate,
+            currentDate: currentDate,
+            calendar: calendar
+        )
     }
 }
