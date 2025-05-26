@@ -19,6 +19,12 @@ extension DateFormatter {
         formatter.dateFormat = "MMM dd, HH:mm"
         return formatter
     }
+    
+    public static var monthYear: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM-yyyy"
+        return formatter
+    }
 }
 
 func formatInterval(_ start: Date, end: Date?, currentDate: Date, calendar: Calendar) -> String {

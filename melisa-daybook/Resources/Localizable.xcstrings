@@ -14,7 +14,7 @@
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Записи"
           }
         }
@@ -62,6 +62,25 @@
           }
         }
       }
+    },
+    "date" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дата"
+          }
+        }
+      }
+    },
+    "day" : {
+
     },
     "delete" : {
       "localizations" : {
@@ -164,6 +183,9 @@
         }
       }
     },
+    "month" : {
+
+    },
     "no_activities" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -208,6 +230,22 @@
         }
       }
     },
+    "sleep_time" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sleep Time"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Час сну"
+          }
+        }
+      }
+    },
     "sleep_value" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -221,6 +259,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сон"
+          }
+        }
+      }
+    },
+    "sort" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sort"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сортувати"
           }
         }
       }
