@@ -55,16 +55,55 @@ final class ChartsModel: HashableObject {
             let res = try ActivityStats.fetchAll(
                 db,
                 sql: """
-                    SELECT sum(strftime('%s', endDate) - strftime('%s', startDate)) as duration, STRFTIME(?,startDate) as unit
-                    FROM baby_activities
-                    WHERE endDate is not NULL                  
-                    GROUP BY STRFTIME(?, startDate)
-                    ORDER BY unit 
+                WITH RECURSIVE days(day) AS (
+                  SELECT DATE(?)
+                  UNION ALL
+                  SELECT DATE(day, '+1 day')
+                  FROM days
+                  WHERE day < ?
+                ),
+                activity_durations AS (
+                  SELECT
+                    ba.id,
+                    ba.activityType,
+                    ba.startDate,
+                    COALESCE(ba.endDate, CURRENT_TIMESTAMP) AS endDate,
+                    d.day
+                  FROM baby_activities ba
+                  JOIN days d
+                    ON d.day BETWEEN DATE(ba.startDate) AND DATE(COALESCE(ba.endDate, CURRENT_TIMESTAMP))
+                ),
+                split_durations AS (
+                  SELECT
+                    day,
+                    activityType,
+                    MAX(DATETIME(day)) AS interval_start,
+                    MIN(DATETIME(day, '+1 day'), endDate) AS interval_end,
+                    (strftime('%s', MIN(DATETIME(day, '+1 day'), endDate)) -
+                     strftime('%s', MAX(DATETIME(day), startDate))) AS duration_seconds
+                  FROM activity_durations
+                  GROUP BY id, day
+                )
+                SELECT 
+                  day AS unit,
+                  activityType,
+                  SUM(duration_seconds) AS duration
+                FROM split_durations
+                GROUP BY day, activityType
+                ORDER BY day, activityType;
                 """,
-                arguments: [dateFilter.filter, dateFilter.filter]
+                arguments: ["2025-05-01", "2025-05-31"]
             )
             
             return State(monthStats: res)
+        }
+    }
+    
+    var selectedDate: Date?
+    var selectedStats: ActivityStats? {
+        guard let selectedDate else { return nil }
+        return state.monthStats.first {
+            calendar.isDate(selectedDate, equalTo: $0.unit, toGranularity: .day)
         }
     }
     
@@ -78,6 +117,9 @@ final class ChartsModel: HashableObject {
     }
     
     @ObservationIgnored
+    @Dependency(\.calendar) private var calendar
+    
+    @ObservationIgnored
     @SharedReader var state: Stats.State
     
     init() {
@@ -85,14 +127,5 @@ final class ChartsModel: HashableObject {
             wrappedValue: .init(),
             .fetch(Stats(dateFilter: self._filter))
         )
-    }
-        
-    func dateFor(value: String) -> Date {
-        switch filter {
-        case .day:
-            return DateFormatter.yearMonthDay.date(from: value)!
-        case .month:
-            return DateFormatter.monthYear.date(from: value)!
-        }
     }
 }
