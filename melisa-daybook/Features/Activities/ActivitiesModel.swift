@@ -209,6 +209,10 @@ final class ActivitiesModel: HashableObject {
         destination = .activityDetails(model)
     }
     
+    func goToCurrentDate() {
+        currentDate = .now
+    }
+    
     func stopCurrentActivity() {
         liveActivityClient.endExistingActivities()
 

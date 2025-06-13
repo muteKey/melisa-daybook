@@ -149,6 +149,22 @@
         }
       }
     },
+    "go_to_current_date" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go to current date"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "До поточної дати"
+          }
+        }
+      }
+    },
     "in_process" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -219,6 +235,9 @@
           }
         }
       }
+    },
+    "Selected day" : {
+
     },
     "Sleep time: %@" : {
       "localizations" : {

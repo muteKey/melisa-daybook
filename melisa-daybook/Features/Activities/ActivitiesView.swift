@@ -44,6 +44,19 @@ struct ActivitiesView: View {
                 }
             }
             
+            if !model.isCurrentDateToday {
+                HStack {
+                    Button {
+                        model.goToCurrentDate()
+                    } label: {
+                        Text("go_to_current_date")
+                    }
+                    
+                    Spacer()
+                }
+                .padding(.vertical)
+            }
+            
             DatePicker(
                 model.isCurrentDateToday ? "today" : "current_date",
                 selection: $model.currentDate,

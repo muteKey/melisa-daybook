@@ -44,10 +44,14 @@ struct BabyActivity: Codable, Identifiable, Equatable, PersistableRecord, Fetcha
 struct ActivityStats: FetchableRecord, Identifiable {
     let id = UUID()
     var duration: Int
-    var unit: String
+    var unit: Date
     
     init(row: GRDB.Row) throws {
         self.duration = row["duration"]
         self.unit = row["unit"]
+    }
+    
+    var formattedDuration: String {
+        Duration.seconds(duration).formatted()
     }
 }
