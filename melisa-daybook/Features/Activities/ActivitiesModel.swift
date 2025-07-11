@@ -34,7 +34,8 @@ final class ActivitiesModel: HashableObject {
                         AND startDate <= date(?, 'start of day', 'localtime', '+23:59:59')
                         OR 
                         (endDate >= date(?, 'start of day', 'localtime')  
-                        AND endDate <= date(?, 'start of day', 'localtime', '+23:59:59'))                    
+                        AND endDate <= date(?, 'start of day', 'localtime', '+23:59:59'))
+                    ORDER BY startDate DESC
                 """,
                 arguments: [date, date, date, date]
             )
@@ -47,7 +48,8 @@ final class ActivitiesModel: HashableObject {
                     WHERE startDate >= date(?, 'start of day', 'localtime') 
                         AND startDate <= date(?, 'start of day', 'localtime', '+23:59:59')
                         AND endDate >= date(?, 'start of day', 'localtime')  
-                        AND endDate <= date(?, 'start of day', 'localtime', '+23:59:59')                    
+                        AND endDate <= date(?, 'start of day', 'localtime', '+23:59:59')
+                        AND activityType = 'sleep'
                 """,
                 arguments: [date, date, date, date]
             ) ?? 0
@@ -62,6 +64,7 @@ final class ActivitiesModel: HashableObject {
                      OR startDate > date(?, 'start of day', 'localtime', '+23:59:59'))                
                     AND (endDate >= date(?, 'start of day', 'localtime')) 
                     AND (endDate <= date(?, 'start of day', 'localtime', '+23:59:59'))
+                    AND activityType = 'sleep'
                 """,
                 arguments: [date, date, date, date]
             ) ?? 0
@@ -75,6 +78,7 @@ final class ActivitiesModel: HashableObject {
                         startDate >= date(?, 'start of day', 'localtime')
                         AND startDate <= date(?, 'start of day', 'localtime', '+23:59:59')
                     AND ("endDate" > date(?, 'start of day', 'localtime', '+23:59:59'))
+                    AND activityType = 'sleep'
                 """,
                 arguments: [date, date, date, date]
             ) ?? 0
@@ -92,6 +96,7 @@ final class ActivitiesModel: HashableObject {
                         WHERE (startDate >= date(?, 'start of day', 'localtime'))
                         AND (startDate <= date(?, 'start of day', 'localtime', '+23:59:59')) 
                         AND endDate IS NOT NULL
+                        AND activityType = 'sleep'
                     """,
                     arguments: [date, date]
                 ) ?? 0
@@ -105,6 +110,7 @@ final class ActivitiesModel: HashableObject {
                         AND (startDate <= date(?, 'start of day', 'localtime', '+23:59:59'))
                         AND (endDate >= date(?, 'start of day', 'localtime')) 
                         AND (endDate <= date(?, 'start of day', 'localtime', '+23:59:59'))
+                        AND activityType = 'sleep'
                     """,
                     arguments: [date, date, date, date, date]
                 ) ?? 0
@@ -178,16 +184,13 @@ final class ActivitiesModel: HashableObject {
             reportIssue(error)
         }
     }
-        
-    func startActivityTimer() {
-        do {
-            try database.write { db in
-                let activity = BabyActivity(activityType: .sleep, startDate: now)
-                try activity.insert(db)
-                liveActivityClient.startActivity(.init(startDate: now))
-            }
-        } catch {
-            reportIssue(error)
+    
+    func activityTypeTapped(_ activityType: ActivityType) {
+        switch activityType {
+        case .sleep:
+            startSleepTimer()
+        case .feeding:
+            recordFeeding()
         }
     }
     
@@ -223,7 +226,8 @@ final class ActivitiesModel: HashableObject {
                     sql: """
                         SELECT *
                         FROM baby_activities
-                        WHERE endDate IS NULL
+                        WHERE endDate IS NULL 
+                        AND activityType = 'sleep'
                     """,
                 ) else {
                     return
@@ -238,11 +242,43 @@ final class ActivitiesModel: HashableObject {
     }
     
     func intervalText(for activity: BabyActivity) -> String {
-        formatInterval(
-            activity.startDate,
-            end: activity.endDate,
-            currentDate: currentDate,
-            calendar: calendar
-        )
+        switch activity.activityType {
+        case .sleep:
+            formatInterval(
+                activity.startDate,
+                end: activity.endDate,
+                currentDate: currentDate,
+                calendar: calendar
+            )
+        case .feeding:
+            dateFormat(
+                activity.startDate,
+                currentDate: currentDate,
+                calendar: calendar
+            )
+        }
+    }
+    
+    private func startSleepTimer() {
+        do {
+            try database.write { db in
+                let activity = BabyActivity(activityType: .sleep, startDate: now)
+                try activity.insert(db)
+                liveActivityClient.startActivity(.init(startDate: now))
+            }
+        } catch {
+            reportIssue(error)
+        }
+    }
+    
+    private func recordFeeding() {
+        do {
+            try database.write { db in
+                let activity = BabyActivity(activityType: .feeding, startDate: now, endDate: now)
+                try activity.insert(db)
+            }
+        } catch {
+            reportIssue(error)
+        }
     }
 }

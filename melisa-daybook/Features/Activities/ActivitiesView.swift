@@ -29,18 +29,21 @@ struct ActivitiesView: View {
             
             if model.isCurrentDateToday {
                 ScrollView(.horizontal, showsIndicators: false) {
-                    ForEach(model.activityTypes) { activityType in
-                        VStack {
-                            activityType.image
-                            Text(activityType.title)
-                        }
-                        .frame(width: 65, height: 65)
-                        .background(Color.gray.opacity(0.3))
-                        .clipShape(Circle())
-                        .onTapGesture {
-                            model.startActivityTimer()
+                    LazyHStack(spacing: 8) {
+                        ForEach(model.activityTypes) { activityType in
+                            VStack {
+                                activityType.image
+                                Text(activityType.title).dynamicTypeSize(.small)
+                            }
+                            .frame(width: 65, height: 65)
+                            .background(Color.gray.opacity(0.3))
+                            .clipShape(Circle())
+                            .onTapGesture {
+                                model.activityTypeTapped(activityType)
+                            }
                         }
                     }
+                    .frame(height: 65)
                 }
             }
             
@@ -78,33 +81,27 @@ struct ActivitiesView: View {
                     Button {
                         model.select(activity: activity)
                     } label: {
-                        VStack(alignment: .leading) {
-                            HStack {
-                                activity.activityType.image
-                                VStack(alignment: .leading) {
-                                    Text(model.intervalText(for: activity))
-                                    if activity.endDate != nil {
-                                        HStack {
-                                            Image(systemName: "clock.fill")
-                                            Text("\(activity.duration.formatted(.units(width: .narrow)))")
-                                        }
-                                    } else {
-                                        Text(
-                                            timerInterval: activity.startDate...Date.distantFuture,
-                                            countsDown: false
-                                        )
-                                        .font(.title3)
+                        switch activity.activityType {
+                        case .sleep:
+                            SleepActivityItemView(
+                                state: .init(
+                                    image: ActivityType.sleep.image,
+                                    intervalText: model.intervalText(for: activity),
+                                    duration: activity.duration,
+                                    startDate: activity.startDate,
+                                    endDate: activity.endDate,
+                                    onStop: {
+                                        model.stopCurrentActivity()
                                     }
-                                }
-                            }
-                            if activity.endDate == nil {
-                                Button("stop") {
-                                    model.stopCurrentActivity()
-                                }
-                                .padding()
-                                .background(Color.gray.opacity(0.3))
-                                .clipShape(Capsule())
-                            }
+                                )
+                            )
+                        case .feeding:
+                            FeedingActivityItemView(
+                                state: .init(
+                                    image: ActivityType.feeding.image,
+                                    dateText: model.intervalText(for: activity)
+                                )
+                            )
                         }
                     }
                     .swipeActions {
@@ -175,6 +172,9 @@ extension ActivityType {
         switch self {
         case .sleep:
             return Image(systemName: "bed.double.fill")
+            
+        case .feeding:
+            return Image(systemName: "fork.knife.circle.fill")
         }
     }
     
@@ -182,6 +182,8 @@ extension ActivityType {
         switch self {
         case .sleep:
             String(localized: "sleep_value")
+        case .feeding:
+            String(localized: "feeding")
         }
     }
 }

@@ -79,9 +79,6 @@
         }
       }
     },
-    "day" : {
-
-    },
     "delete" : {
       "localizations" : {
         "en" : {
@@ -149,6 +146,39 @@
         }
       }
     },
+    "feeding" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feeding"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Їжа"
+          }
+        }
+      }
+    },
+    "feeding_chart_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feeding"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прийоми їжі (шт)"
+          }
+        }
+      }
+    },
     "go_to_current_date" : {
       "localizations" : {
         "en" : {
@@ -199,9 +229,6 @@
         }
       }
     },
-    "month" : {
-
-    },
     "no_activities" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -215,6 +242,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Немає даних"
+          }
+        }
+      }
+    },
+    "no_feeding_data_available" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No feeding data available"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Немає даних по годуванню"
+          }
+        }
+      }
+    },
+    "no_sleep_data_available" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No sleep data available"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Немає даних по сну"
           }
         }
       }
@@ -237,7 +296,14 @@
       }
     },
     "Selected day" : {
-
+      "localizations" : {
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обраний день"
+          }
+        }
+      }
     },
     "Sleep time: %@" : {
       "localizations" : {
@@ -245,6 +311,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Час сну: %@"
+          }
+        }
+      }
+    },
+    "sleep_chart_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sleep"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сон (год)"
           }
         }
       }
@@ -278,22 +360,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сон"
-          }
-        }
-      }
-    },
-    "sort" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sort"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сортувати"
           }
         }
       }

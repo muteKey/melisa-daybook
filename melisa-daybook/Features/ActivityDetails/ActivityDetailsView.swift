@@ -15,33 +15,50 @@ struct ActivityDetailsView: View {
     @State var selected = Date()
     var body: some View {
         VStack {
-            Form {
-                HStack {
-                    Text("duration")
-                    Spacer()
-                    Text(model.activity.duration.formatted())
-                }
-                HStack {
-                    DatePicker(
-                        "start_date",
-                        selection: $model.activity.startDate
-                    )
-                }
-                HStack {
-                    if let bind = Binding(unwrapping: $model.activity.endDate) {
+            switch model.activity.activityType {
+            case .sleep:
+                Form {
+                    HStack {
+                        Text("duration")
+                        Spacer()
+                        Text(model.activity.duration.formatted())
+                    }
+                    HStack {
                         DatePicker(
-                            "end_date",
-                            selection: bind,
-                            in: model.activity.startDate...Date.distantFuture
+                            "start_date",
+                            selection: $model.activity.startDate
                         )
-                        
-                    } else {
+                    }
+
+                    if model.activity.activityType == .sleep {
                         HStack {
-                            Button("stop") {
-                                model.setEndDateTapped()
+                            if let bind = Binding(unwrapping: $model.activity.endDate) {
+                                DatePicker(
+                                    "end_date",
+                                    selection: bind,
+                                    in: model.activity.startDate...Date.distantFuture
+                                )
+
+                            } else {
+                                HStack {
+                                    Button("stop") {
+                                        model.setEndDateTapped()
+                                    }
+                                }
                             }
                         }
                     }
+                }
+
+            case .feeding:
+                Form {
+                    HStack {
+                        DatePicker(
+                            "date",
+                            selection: $model.activity.startDate
+                        )
+                    }
+
                 }
             }
 
@@ -68,7 +85,7 @@ struct ActivityDetailsView: View {
     
     let activity: BabyActivity = .init(
         id: 1,
-        activityType: .sleep,
+        activityType: .feeding,
         startDate: .now,
         endDate: nil
     )

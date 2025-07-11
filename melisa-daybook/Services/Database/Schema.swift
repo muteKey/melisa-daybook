@@ -11,6 +11,7 @@ import SharingGRDB
 
 enum ActivityType: String, Codable, CaseIterable, Identifiable, QueryBindable {
     case sleep
+    case feeding
     
     var id: RawValue { rawValue }
 }
@@ -41,7 +42,7 @@ struct BabyActivity: Codable, Identifiable, Equatable, PersistableRecord, Fetcha
     }
 }
 
-struct ActivityStats: FetchableRecord, Identifiable {
+struct SleepStats: FetchableRecord, Identifiable {
     let id = UUID()
     var duration: Int
     var unit: Date
@@ -52,6 +53,17 @@ struct ActivityStats: FetchableRecord, Identifiable {
     }
     
     var formattedDuration: String {
-        Duration.seconds(duration).formatted()
+        Duration.seconds(duration).formatted(.units(width: .narrow, maximumUnitCount: 2))
+    }
+}
+
+struct FeedingStats: FetchableRecord, Identifiable {
+    let id = UUID()
+    var count: Int
+    var unit: Date
+    
+    init(row: GRDB.Row) throws {
+        self.count = row["count"]
+        self.unit = row["unit"]
     }
 }
