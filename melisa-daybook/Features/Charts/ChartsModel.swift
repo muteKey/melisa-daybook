@@ -117,15 +117,23 @@ final class ChartsModel: HashableObject {
         }
     }
     
-    var selectedDate: Date?
+    var selectedSleepDate: Date?
         
-    var selectedStats: SleepStats? {
-        guard let selectedDate else { return nil }
+    var selectedSleepStats: SleepStats? {
+        guard let selectedSleepDate else { return nil }
         return state.sleepStats.first {
-            calendar.isDate(selectedDate, equalTo: $0.unit, toGranularity: .day)
+            calendar.isDate(selectedSleepDate, equalTo: $0.unit, toGranularity: .day)
         }
     }
     
+    var selectedFeedDate: Date?
+    var selectedFeedStats: FeedingStats? {
+        guard let selectedFeedDate else { return nil }
+        return state.feedingStats.first {
+            calendar.isDate(selectedFeedDate, equalTo: $0.unit, toGranularity: .day)
+        }
+    }
+
     func dateRangeTapped() {
         destination = .calendar
     }

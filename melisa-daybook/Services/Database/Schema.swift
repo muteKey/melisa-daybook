@@ -52,7 +52,7 @@ struct SleepStats: FetchableRecord, Identifiable {
         self.unit = row["unit"]
     }
     
-    var formattedDuration: String {
+    var text: String {
         Duration.seconds(duration).formatted(.units(width: .narrow, maximumUnitCount: 2))
     }
 }
@@ -65,5 +65,9 @@ struct FeedingStats: FetchableRecord, Identifiable {
     init(row: GRDB.Row) throws {
         self.count = row["count"]
         self.unit = row["unit"]
+    }
+    
+    var text: String {
+        count.description
     }
 }
